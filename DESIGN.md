@@ -30,7 +30,7 @@ The tools in this project prioritize simplicity and shall work without build ste
 
 - Standard HTML 5.
 - Standard JavaScript ES6.
-- Tailwind CSS version 4 for styling, loaded via CDN.
+- Tailwind CSS for styling, loaded via CDN.
 - Vega-lite for visualization of data, loaded via CDN.
 
 ## Prohibited
@@ -43,10 +43,13 @@ The tools in this project prioritize simplicity and shall work without build ste
 
 ### Tailwind CSS
 
+Use the official Tailwind Play CDN for prototyping (includes JIT compiler):
+
 ```html
-<script src="https://cdn.jsdelivr.net/npm/tailwindcss@4/dist/lib.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@4/index.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
 ```
+
+**Note:** This CDN is designed for development/prototyping and works without a build step. The JIT compiler runs in the browser and generates CSS on-the-fly.
 
 ---
 
