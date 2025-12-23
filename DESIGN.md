@@ -1,4 +1,54 @@
-# Design Guidelines
+# Project Software Design Guidelines
+
+## Design Philosophy
+
+The tools in this project prioritize simplicity and shall work without build steps. All tools are designed to work as one-file static web pages.
+
+## Architecture
+
+- **One single html file per tool**, including html, css, and javascript.
+- **Responsive design**, mobile first.
+- No build steps, tools should work when opened in browser.
+- Use localStorage for persistence.
+- Support modern browsers Chrome, Firefox, Edge, no support for old browsers such as IE11 required.
+
+## User Interface and Visual Design
+
+- Aim for clear and simple UI.
+- Add keyboard navigation.
+- Sufficient color contrast (WCAG AA).
+- Implement light & dark mode based on system.
+
+## Coding Style
+
+- Keep code simple, human readable, and use small functions.
+- Add comments to enhance readability.
+- Use consistent indentation of 4 spaces.
+- Use semantic HTML 5 elements.
+
+## Allowed
+
+- Standard HTML 5.
+- Standard JavaScript ES6.
+- Tailwind CSS version 4 for styling, loaded via CDN.
+- Vega-lite for visualization of data, loaded via CDN.
+
+## Prohibited
+
+- React, Vue, or any other framework requiring build steps.
+- Node.js dependencies or npm packages (CDN only).
+- Typescript or other transpiled languages.
+
+## Preferred Libraries
+
+### Tailwind CSS
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/tailwindcss@4/dist/lib.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@4/index.min.css">
+```
+
+---
 
 ## Git Commit Messages
 
