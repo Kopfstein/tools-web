@@ -1,0 +1,116 @@
+name: Deploy to GitHub Pages
+
+on:
+    # Trigger on push to main branch
+    push:
+        branches:
+            - main
+
+    # Allow manual trigger from Actions tab
+    workflow_dispatch:
+
+# Sets permissions for GitHub Pages deployment
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+    group: "pages"
+    cancel-in-progress: false
+
+jobs:
+    deploy:
+        name: Deploy to GitHub Pages
+        runs-on: ubuntu-latest
+
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Create deployment directory
+              run: |
+                  mkdir -p _site
+                  # Copy all HTML files to deployment directory
+                  find . -maxdepth 1 -name "*.html" -exec cp {} _site/ \;
+                  # Copy LICENSE and README
+                  cp LICENSE _site/ 2>/dev/null || true
+                  cp README.md _site/ 2>/dev/null || true
+                  # Create index.html with links to all tools
+                  cat > _site/index.html << 'EOF'
+                  <!DOCTYPE html>
+                  <html lang="en">
+                  <head>
+                      <meta charset="UTF-8">
+                      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                      <title>Tools Web - Productivity Tools</title>
+                      <link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css">
+                      <style>
+                          body { background-color: #f4f4f4; }
+                          .card { background-color: white; }
+                          @media (prefers-color-scheme: dark) {
+                              body { background-color: #1f2937; color: #f9fafb; }
+                              .card { background-color: #111827; }
+                              a { color: #60a5fa; }
+                              a:hover { color: #93c5fd; }
+                          }
+                      </style>
+                  </head>
+                  <body class="min-vh-100 pa3">
+                      <div class="mw7 center">
+                          <div class="card br3 shadow-2 pa4 mb4">
+                              <h1 class="f1 b mb3">Tools Web</h1>
+                              <p class="f4 lh-copy mb4">
+                                  A collection of productivity tools packaged as static HTML pages.
+                                  Each tool is self-contained and works entirely in your browser.
+                              </p>
+                          </div>
+
+                          <div class="card br3 shadow-2 pa4">
+                              <h2 class="f2 b mb3">Available Tools</h2>
+                              <ul class="list pl0">
+                                  <li class="mb3">
+                                      <a href="pomodoro-timer.html" class="f3 link blue hover-dark-blue">
+                                          🍅 Pomodoro Timer
+                                      </a>
+                                      <p class="f5 mt2 gray">
+                                          Simple countdown timer for the Pomodoro Technique with preset durations,
+                                          custom input, and gong sound notifications.
+                                      </p>
+                                  </li>
+                              </ul>
+                          </div>
+
+                          <div class="tc mt4 f6 gray">
+                              <p>
+                                  All tools work offline • No tracking • No backend required
+                              </p>
+                              <p class="mt2">
+                                  <a href="https://github.com/Kopfstein/tools-web" class="link blue hover-dark-blue">
+                                      View on GitHub
+                                  </a>
+                              </p>
+                          </div>
+                      </div>
+                  </body>
+                  </html>
+                  EOF
+                  echo "Deployment directory contents:"
+                  ls -la _site/
+
+            - name: Setup Pages
+              uses: actions/configure-pages@v4
+
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: '_site'
+
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4
