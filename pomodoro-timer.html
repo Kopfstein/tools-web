@@ -210,9 +210,9 @@
                 oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
                 oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + duration);
 
-                // Envelope: quick attack, slow decay
+                // Envelope: quick attack, slow decay (increased volume)
                 gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+                gainNode.gain.linearRampToValueAtTime(0.7, audioContext.currentTime + 0.01);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
 
                 oscillator.start(audioContext.currentTime);
