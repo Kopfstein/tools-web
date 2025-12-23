@@ -49,17 +49,6 @@ Use Tachyons for utility-first CSS styling:
 <link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css">
 ```
 
-**Why Tachyons:**
-- Pure CSS, no JavaScript required (~14KB minified + gzipped)
-- Designed specifically for CDN use
-- Fast loading with no runtime compilation
-- Works offline once cached
-- Utility-first approach similar to Tailwind but more lightweight
-
-**Custom styles:** For features not available in Tachyons (e.g., specific colors, dark mode utilities), add custom CSS in a `<style>` tag.
-
----
-
 ## Git Commit Messages
 
 Commit messages shall follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) rules.
