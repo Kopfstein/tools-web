@@ -87,6 +87,18 @@
         let timerInterval = null;
         let isRunning = false;
 
+        // Initialize AudioContext (for iOS/Safari compatibility)
+        let audioContext = null;
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            // Resume if suspended (required for iOS)
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
         // DOM elements
         const timerDisplay = document.getElementById('timer-display');
         const btnStartPause = document.getElementById('btn-start-pause');
@@ -169,31 +181,56 @@
 
         // Play gong sound using Web Audio API
         function playGongSound() {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const duration = 2.0;
+            // Fallback if AudioContext not initialized
+            if (!audioContext) {
+                console.warn('AudioContext not initialized');
+                // Vibrate as fallback on mobile devices
+                if (navigator.vibrate) {
+                    navigator.vibrate([200, 100, 200, 100, 400]);
+                }
+                return;
+            }
 
-            // Create oscillator for the gong sound
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
+            try {
+                // Ensure AudioContext is running (important for iOS)
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
 
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
+                const duration = 2.0;
 
-            // Gong-like sound: start at high frequency and decay
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + duration);
+                // Create oscillator for the gong sound
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
 
-            // Envelope: quick attack, slow decay
-            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
 
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + duration);
+                // Gong-like sound: start at high frequency and decay
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + duration);
+
+                // Envelope: quick attack, slow decay
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (error) {
+                console.error('Error playing gong sound:', error);
+                // Vibrate as fallback
+                if (navigator.vibrate) {
+                    navigator.vibrate([200, 100, 200, 100, 400]);
+                }
+            }
         }
 
         // Event listeners
         btnStartPause.addEventListener('click', () => {
+            // Initialize AudioContext on first user interaction (required for iOS/Safari)
+            initAudioContext();
+
             if (isRunning) {
                 stopTimer();
             } else {
@@ -203,8 +240,14 @@
 
         btnReset.addEventListener('click', resetTimer);
 
-        btn10min.addEventListener('click', () => setDuration(10));
-        btn25min.addEventListener('click', () => setDuration(25));
+        btn10min.addEventListener('click', () => {
+            initAudioContext(); // Initialize on user interaction
+            setDuration(10);
+        });
+        btn25min.addEventListener('click', () => {
+            initAudioContext(); // Initialize on user interaction
+            setDuration(25);
+        });
 
         customDurationInput.addEventListener('change', (e) => {
             const minutes = parseInt(e.target.value);
