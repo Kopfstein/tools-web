@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer</title>
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@4/dist/lib.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@4/index.min.css">
+    <style>
+        /* Support for light and dark mode based on system preference */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1f2937;
+                color: #f9fafb;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-800">
+    <div class="w-full max-w-md">
+        <!-- Main card -->
+        <div class="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8">
+            <h1 class="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
+                Pomodoro Timer
+            </h1>
+
+            <!-- Timer display -->
+            <div class="text-center mb-8">
+                <div id="timer-display" class="text-6xl font-mono font-bold text-gray-900 dark:text-gray-100"
+                     role="timer" aria-live="polite" aria-atomic="true">
+                    25:00
+                </div>
+            </div>
+
+            <!-- Preset buttons -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <button id="btn-10min"
+                        class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        aria-label="Set timer to 10 minutes">
+                    10 min
+                </button>
+                <button id="btn-25min"
+                        class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        aria-label="Set timer to 25 minutes">
+                    25 min
+                </button>
+            </div>
+
+            <!-- Custom duration input -->
+            <div class="mb-6">
+                <label for="custom-duration" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                    Custom Duration (minutes)
+                </label>
+                <input type="number"
+                       id="custom-duration"
+                       min="1"
+                       max="999"
+                       placeholder="Enter minutes"
+                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                       aria-label="Enter custom duration in minutes">
+            </div>
+
+            <!-- Start/Pause button -->
+            <button id="btn-start-pause"
+                    class="w-full px-6 py-4 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                    aria-label="Start timer">
+                Start
+            </button>
+
+            <!-- Reset button -->
+            <button id="btn-reset"
+                    class="w-full mt-4 px-6 py-2 bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                    aria-label="Reset timer">
+                Reset
+            </button>
+        </div>
+
+        <!-- Instructions -->
+        <div class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+            <p>Press Space to start/pause • Press R to reset</p>
+        </div>
+    </div>
+
+    <script>
+        // Timer state
+        let totalSeconds = 25 * 60; // Default 25 minutes
+        let remainingSeconds = totalSeconds;
+        let timerInterval = null;
+        let isRunning = false;
+
+        // DOM elements
+        const timerDisplay = document.getElementById('timer-display');
+        const btnStartPause = document.getElementById('btn-start-pause');
+        const btnReset = document.getElementById('btn-reset');
+        const btn10min = document.getElementById('btn-10min');
+        const btn25min = document.getElementById('btn-25min');
+        const customDurationInput = document.getElementById('custom-duration');
+
+        // Format seconds to MM:SS
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Update timer display
+        function updateDisplay() {
+            timerDisplay.textContent = formatTime(remainingSeconds);
+        }
+
+        // Set timer duration
+        function setDuration(minutes) {
+            if (isRunning) {
+                stopTimer();
+            }
+            totalSeconds = minutes * 60;
+            remainingSeconds = totalSeconds;
+            updateDisplay();
+            // Save to localStorage
+            localStorage.setItem('pomodoroTimer', totalSeconds);
+        }
+
+        // Start timer countdown
+        function startTimer() {
+            if (remainingSeconds === 0) {
+                remainingSeconds = totalSeconds;
+            }
+
+            isRunning = true;
+            btnStartPause.textContent = 'Pause';
+            btnStartPause.classList.remove('bg-green-500', 'hover:bg-green-600');
+            btnStartPause.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+            btnStartPause.setAttribute('aria-label', 'Pause timer');
+
+            timerInterval = setInterval(() => {
+                remainingSeconds--;
+                updateDisplay();
+
+                if (remainingSeconds <= 0) {
+                    stopTimer();
+                    playGongSound();
+                    // Show notification
+                    if (Notification.permission === 'granted') {
+                        new Notification('Pomodoro Timer', {
+                            body: 'Time is up!',
+                            icon: '⏰'
+                        });
+                    }
+                }
+            }, 1000);
+        }
+
+        // Stop timer
+        function stopTimer() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            timerInterval = null;
+            btnStartPause.textContent = 'Start';
+            btnStartPause.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+            btnStartPause.classList.add('bg-green-500', 'hover:bg-green-600');
+            btnStartPause.setAttribute('aria-label', 'Start timer');
+        }
+
+        // Reset timer
+        function resetTimer() {
+            stopTimer();
+            remainingSeconds = totalSeconds;
+            updateDisplay();
+        }
+
+        // Play gong sound using Web Audio API
+        function playGongSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const duration = 2.0;
+
+            // Create oscillator for the gong sound
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            // Gong-like sound: start at high frequency and decay
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + duration);
+
+            // Envelope: quick attack, slow decay
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        // Event listeners
+        btnStartPause.addEventListener('click', () => {
+            if (isRunning) {
+                stopTimer();
+            } else {
+                startTimer();
+            }
+        });
+
+        btnReset.addEventListener('click', resetTimer);
+
+        btn10min.addEventListener('click', () => setDuration(10));
+        btn25min.addEventListener('click', () => setDuration(25));
+
+        customDurationInput.addEventListener('change', (e) => {
+            const minutes = parseInt(e.target.value);
+            if (minutes > 0 && minutes <= 999) {
+                setDuration(minutes);
+                e.target.value = '';
+            }
+        });
+
+        customDurationInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const minutes = parseInt(e.target.value);
+                if (minutes > 0 && minutes <= 999) {
+                    setDuration(minutes);
+                    e.target.value = '';
+                }
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            // Ignore if typing in input field
+            if (e.target === customDurationInput) {
+                return;
+            }
+
+            if (e.key === ' ' || e.key === 'Spacebar') {
+                e.preventDefault();
+                btnStartPause.click();
+            } else if (e.key === 'r' || e.key === 'R') {
+                e.preventDefault();
+                btnReset.click();
+            }
+        });
+
+        // Request notification permission on load
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+
+        // Load saved duration from localStorage
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem('pomodoroTimer');
+            if (saved) {
+                totalSeconds = parseInt(saved);
+                remainingSeconds = totalSeconds;
+                updateDisplay();
+            }
+        });
+    </script>
+</body>
+</html>
