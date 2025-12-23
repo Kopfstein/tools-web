@@ -4,50 +4,180 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pomodoro Timer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css">
     <style>
-        /* Support for light and dark mode based on system preference */
+        /* Custom styles for features not in Tachyons */
+        body {
+            background-color: #f4f4f4;
+        }
+
+        /* Dark mode support */
         @media (prefers-color-scheme: dark) {
             body {
                 background-color: #1f2937;
                 color: #f9fafb;
             }
+            .card {
+                background-color: #111827;
+            }
+            .timer-display {
+                color: #f9fafb;
+            }
+            .label-text {
+                color: #d1d5db;
+            }
+            .input-field {
+                background-color: #1f2937;
+                border-color: #4b5563;
+                color: #f9fafb;
+            }
+            .btn-reset {
+                background-color: #374151;
+                color: #f9fafb;
+            }
+            .btn-reset:hover {
+                background-color: #4b5563;
+            }
+            .instructions {
+                color: #9ca3af;
+            }
+        }
+
+        /* Timer display */
+        .timer-display {
+            font-size: 4rem;
+            font-family: monospace;
+            color: #111;
+        }
+
+        /* Button styles */
+        .btn {
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .btn:focus {
+            outline: 2px solid;
+            outline-offset: 2px;
+        }
+
+        .btn-blue {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-blue:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-blue:focus {
+            outline-color: #3b82f6;
+        }
+
+        .btn-green {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .btn-green:hover {
+            background-color: #059669;
+        }
+
+        .btn-green:focus {
+            outline-color: #10b981;
+        }
+
+        .btn-yellow {
+            background-color: #eab308;
+            color: white;
+        }
+
+        .btn-yellow:hover {
+            background-color: #ca8a04;
+        }
+
+        .btn-yellow:focus {
+            outline-color: #eab308;
+        }
+
+        .btn-reset {
+            background-color: #d1d5db;
+            color: #111827;
+        }
+
+        .btn-reset:hover {
+            background-color: #9ca3af;
+        }
+
+        .btn-reset:focus {
+            outline-color: #6b7280;
+        }
+
+        /* Input field */
+        .input-field {
+            background-color: white;
+            border: 1px solid #d1d5db;
+            color: #111827;
+        }
+
+        .input-field:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 0;
+        }
+
+        /* Card */
+        .card {
+            background-color: white;
+        }
+
+        /* Instructions */
+        .instructions {
+            color: #6b7280;
+        }
+
+        /* Responsive timer display */
+        @media screen and (max-width: 30em) {
+            .timer-display {
+                font-size: 3rem;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-800">
-    <div class="w-full max-w-md">
+<body class="min-vh-100 flex items-center justify-center pa3">
+    <div class="w-100 mw6 center">
         <!-- Main card -->
-        <div class="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8">
-            <h1 class="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-gray-100">
+        <div class="card br3 shadow-2 pa4">
+            <h1 class="f2 b tc mb4 timer-display">
                 Pomodoro Timer
             </h1>
 
             <!-- Timer display -->
-            <div class="text-center mb-8">
-                <div id="timer-display" class="text-6xl font-mono font-bold text-gray-900 dark:text-gray-100"
+            <div class="tc mb4">
+                <div id="timer-display" class="timer-display b"
                      role="timer" aria-live="polite" aria-atomic="true">
                     25:00
                 </div>
             </div>
 
             <!-- Preset buttons -->
-            <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="flex mb3">
                 <button id="btn-10min"
-                        class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        class="btn btn-blue w-50 mr2 ph3 pv2 br2"
                         aria-label="Set timer to 10 minutes">
                     10 min
                 </button>
                 <button id="btn-25min"
-                        class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        class="btn btn-blue w-50 ml2 ph3 pv2 br2"
                         aria-label="Set timer to 25 minutes">
                     25 min
                 </button>
             </div>
 
             <!-- Custom duration input -->
-            <div class="mb-6">
-                <label for="custom-duration" class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+            <div class="mb3">
+                <label for="custom-duration" class="db f6 fw5 mb2 label-text">
                     Custom Duration (minutes)
                 </label>
                 <input type="number"
@@ -55,27 +185,27 @@
                        min="1"
                        max="999"
                        placeholder="Enter minutes"
-                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                       class="input-field w-100 ph3 pv2 br2"
                        aria-label="Enter custom duration in minutes">
             </div>
 
             <!-- Start/Pause button -->
             <button id="btn-start-pause"
-                    class="w-full px-6 py-4 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                    class="btn btn-green w-100 ph3 pv3 br2 f5 b"
                     aria-label="Start timer">
                 Start
             </button>
 
             <!-- Reset button -->
             <button id="btn-reset"
-                    class="w-full mt-4 px-6 py-2 bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                    class="btn btn-reset w-100 mt3 ph3 pv2 br2"
                     aria-label="Reset timer">
                 Reset
             </button>
         </div>
 
         <!-- Instructions -->
-        <div class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+        <div class="mt3 tc f6 instructions">
             <p>Press Space to start/pause • Press R to reset</p>
         </div>
     </div>
@@ -139,8 +269,8 @@
 
             isRunning = true;
             btnStartPause.textContent = 'Pause';
-            btnStartPause.classList.remove('bg-green-500', 'hover:bg-green-600');
-            btnStartPause.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+            btnStartPause.classList.remove('btn-green');
+            btnStartPause.classList.add('btn-yellow');
             btnStartPause.setAttribute('aria-label', 'Pause timer');
 
             timerInterval = setInterval(() => {
@@ -167,8 +297,8 @@
             clearInterval(timerInterval);
             timerInterval = null;
             btnStartPause.textContent = 'Start';
-            btnStartPause.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-            btnStartPause.classList.add('bg-green-500', 'hover:bg-green-600');
+            btnStartPause.classList.remove('btn-yellow');
+            btnStartPause.classList.add('btn-green');
             btnStartPause.setAttribute('aria-label', 'Start timer');
         }
 

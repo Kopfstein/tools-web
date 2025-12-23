@@ -30,7 +30,7 @@ The tools in this project prioritize simplicity and shall work without build ste
 
 - Standard HTML 5.
 - Standard JavaScript ES6.
-- Tailwind CSS for styling, loaded via CDN.
+- Tachyons CSS for styling, loaded via CDN.
 - Vega-lite for visualization of data, loaded via CDN.
 
 ## Prohibited
@@ -41,15 +41,22 @@ The tools in this project prioritize simplicity and shall work without build ste
 
 ## Preferred Libraries
 
-### Tailwind CSS
+### Tachyons CSS
 
-Use the official Tailwind Play CDN for prototyping (includes JIT compiler):
+Use Tachyons for utility-first CSS styling:
 
 ```html
-<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css">
 ```
 
-**Note:** This CDN is designed for development/prototyping and works without a build step. The JIT compiler runs in the browser and generates CSS on-the-fly.
+**Why Tachyons:**
+- Pure CSS, no JavaScript required (~14KB minified + gzipped)
+- Designed specifically for CDN use
+- Fast loading with no runtime compilation
+- Works offline once cached
+- Utility-first approach similar to Tailwind but more lightweight
+
+**Custom styles:** For features not available in Tachyons (e.g., specific colors, dark mode utilities), add custom CSS in a `<style>` tag.
 
 ---
 
